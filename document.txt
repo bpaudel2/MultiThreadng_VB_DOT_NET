@@ -1,0 +1,152 @@
+Multithreading Using Thread Class: 
+
+Multithreading can also be made using BackgroundWorker. 
+But this exaple uses Thread class. 
+AddNumber, SubstractNumber and DivideNumber functions will be 
+executed by separate threads. 
+
+#Code 
+
+Module Module1 
+    'Declare the thread ans assign a sub to that 
+    Dim AddThread As New Threading.Thread(AddressOf AddNumber)
+    Dim SubstractThread As New Threading.Thread(Address of SubstractNumber)
+    Dim DivideThread As New Threading.Thread(AddressOf DivideNumber)
+
+
+    'Declare the variable for holding the result
+    Dim addResult As Integer
+    Dim SubStractResult As Integer
+    Dim DivisionResult As Double
+    Dim bFinishAddition As Boolean = False
+    Dim bFinishSubstration As Boolean = False
+    Dim bFinishDivision As Boolean = False
+    Dim bShownAdditionResult As Boolean = False
+    Dim bShownDivisionResult As Boolean = False
+    Dim bShownSubstractionResult As Boolean = False
+
+
+    Sub Main()
+        'Now start the trheads
+        AddThread.Start()
+        SubstractThread.Start()
+        DivideThread.Start()
+
+
+        'Wait and display the results in console
+        Console.WriteLine("Waiting for threads to finish...")
+        Console.WriteLine("")
+
+        While bFinishAddition = False OR bFinishDivision = False OR bFinishSubstration = False 
+            Threading.Thread.Sleep(50) 'UI thread is sleeping 
+            If bFinishAddition And Not bShownAdditionResult Then 
+                Console.WriteLine('Addition Result: '& addResult)
+                bShownAdditionResult = True 
+            End If 
+
+            If bFinishSubstration And Not bShownSubstractionResult Then
+                Console.WriteLine("Substraction Result : " & SubStractResult)
+                bShownSubstractionResult = True
+            End If
+
+            If bFinishDivision And Not bShownDivisionResult Then
+                Console.WriteLine("Division Result : " & DivisionResult)
+                bShownDivisionResult = True
+            End If
+
+        End While
+
+        Console.WriteLine("")
+        Console.WriteLine("Finished all threads.")
+
+        Console.ReadKey() 
+    End Sub 
+
+
+    Private Sub AddNumber()
+        Dim n1 As Integer = 22
+        Dim n2 As Integer = 11
+        For i As Integer = 0 To 100
+            addResult = addResult + (n1 + n2)
+            Threading.Thread.Sleep(50)
+            'sleeping Add thread
+        Next
+        bFinishAddition = True
+    End Sub
+
+
+    Private Sub SubstractNumber()
+        Dim n1 As Integer = 22
+        Dim n2 As Integer = 11
+        For i As Integer = 0 To 80
+            SubStractResult = SubStractResult - (n1 - n2)
+            Threading.Thread.Sleep(50)
+        Next
+        bFinishSubstration = True
+    End Sub
+
+
+    Private Sub DivideNumber()
+        Dim n1 As Integer = 22
+        Dim n2 As Integer = 11
+        For i As Integer = 0 To 60
+            DivisionResult = DivisionResult + (n1 / n2)
+            Threading.Thread.Sleep(50)
+        Next
+        bFinishDivision = True
+    End Sub
+
+End Module 
+
+
+Task-Based Asynchronous pattern 
+
+    You can start some slow process in parallel and then collect the results 
+    when they are done. 
+
+#Code 
+
+Public Sub Main()
+    Dim results = Task.WhenAll(SlowCalculation, AnotherSlowCalculation).Result
+    For Each result In results
+        Console.WriteLine(result)
+    Next
+End Sub
+
+
+Async Function SlowCalculation() As Task(Of Integer)
+    Await Task.Delay(2000)
+    Return 40
+End Function
+
+Async Function AnotherSlowCalculation() As Task(Of Integer)
+    Await Task.Delay(2000)
+    Return 60
+End Function
+
+
+
+Using Tap with LINQ: 
+
+You can create an IEnumerable Task by passing AddressOf AsyncMethod to the LINQ 
+Select method and then start and wait all the results with Task.WhenAll 
+
+If your method has parameters matching the previous LINQ chain call, they will be 
+automatically mapped. 
+
+#Code 
+
+Public Sub Main()
+    Dim tasks = Enumerable.Range(0, 100).Select(AddressOf TurnSlowlyIntegerIntoString)
+    Dim resultingStrings = Task.WhenAll(tasks).Result
+    For Each value In resultingStrings
+        Console.WriteLine(value)
+    Next
+End Sub
+Async Function TurnSlowlyIntegerIntoString(input As Integer) As Task(Of String)
+    Await Task.Delay(2000)
+    Return input.ToString()
+End Function
+
+
+
